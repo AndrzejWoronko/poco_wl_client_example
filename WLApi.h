@@ -11,7 +11,7 @@
 #include "Poco/DateTimeFormatter.h"
 #include "Poco/DateTimeParser.h"
 
-#include "Poco/Net/HTTPClientSession.h"
+#include "Poco/Net/HTTPSClientSession.h"
 #include "Poco/Net/HTTPRequest.h"
 #include "Poco/Net/HTTPResponse.h"
 #include "Poco/Net/HTTPCredentials.h"
@@ -66,6 +66,7 @@ public:
 class WLApi
 {
     WLApiContractorRec m_contractor_rec;
+    std::string m_raw_response;
 
     bool doRequest(Poco::Net::HTTPClientSession& session, Poco::Net::HTTPRequest& request, Poco::Net::HTTPResponse& response);
 

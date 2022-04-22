@@ -26,4 +26,4 @@ FetchContent_MakeAvailable(Poco)
 
 add_executable(poco_wl_client ${WL_SRCS})
 
-target_link_libraries(poco_wl_client PUBLIC Poco::Foundation Poco::Net Poco::Util)
+target_link_libraries(poco_wl_client PUBLIC Poco::Foundation Poco::NetSSL Poco::Util)

@@ -1,6 +1,6 @@
 #include "WLApi.h"
 
-using Poco::Net::HTTPClientSession;
+using Poco::Net::HTTPSClientSession;
 using Poco::Net::HTTPRequest;
 using Poco::Net::HTTPResponse;
 using Poco::Net::HTTPMessage;
@@ -64,18 +64,22 @@ WLApi::WLApi()
 
 bool WLApi::doRequest(Poco::Net::HTTPClientSession& session, Poco::Net::HTTPRequest& request, Poco::Net::HTTPResponse& response)
 {
+    session.setKeepAlive(true);
+    request.setKeepAlive(true);
+    request.setContentType("application/json");
+
     session.sendRequest(request);
     std::istream& rs = session.receiveResponse(response);
     std::cout << response.getStatus() << " " << response.getReason() << std::endl;
     if (response.getStatus() == Poco::Net::HTTPResponse::HTTP_OK)
     {
-        StreamCopier::copyStream(rs, std::cout);
+        StreamCopier::copyToString(rs, m_raw_response);
         return true;
     }
     else
     {
         Poco::NullOutputStream null;
-        StreamCopier::copyStream(rs, null);
+        StreamCopier::copyToString(rs, m_raw_response);
         return false;
     }
 }
@@ -88,15 +92,25 @@ void WLApi::getContractorByNIP(const std::string &nip)
 
     path << WL_API_GET << WL_NIP_SEARCH << nip << "?date=" << date_str;
 
-    Poco::URI uri(path.str());
-    std::string www_path(uri.getPathAndQuery());
+    std::cout << "API full adress: " << path.str() << std::endl;
 
-    HTTPClientSession session(uri.getHost(), uri.getPort());
+    Poco::URI uri(path.str());
+    uri.setPort(80);
+    std::string www_path(uri.getPathAndQuery());
+    if (www_path.empty()) www_path = "/";
+
+    std::cout << "API adress: " << www_path <<  std::endl;
+
+    HTTPSClientSession session(uri.getHost());
+
     HTTPRequest request(HTTPRequest::HTTP_GET, www_path, HTTPMessage::HTTP_1_1);
+    request.setURI(www_path);
+
     HTTPResponse response;
 
     if (this->doRequest(session, request, response))
     {
+
         std::cout << "Contractor with NIP: " << nip  << " found !!!" << std::endl;
     }
     else
