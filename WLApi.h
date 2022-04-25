@@ -10,6 +10,8 @@
 #include "Poco/DateTimeFormat.h"
 #include "Poco/DateTimeFormatter.h"
 #include "Poco/DateTimeParser.h"
+#include "Poco/String.h"
+#include "Poco/StringTokenizer.h"
 
 #include "Poco/Net/HTTPSClientSession.h"
 #include "Poco/Net/HTTPRequest.h"
@@ -20,6 +22,14 @@
 #include "Poco/Path.h"
 #include "Poco/URI.h"
 #include "Poco/Exception.h"
+
+#include "Poco/JSON/JSON.h"
+#include "Poco/JSON/Parser.h"
+#include "Poco/JSON/ParseHandler.h"
+#include "Poco/JSON/JSONException.h"
+#include "Poco/Dynamic/Var.h"
+#include "Poco/Array.h"
+
 
 
 #define WL_API_GET "https://wl-api.mf.gov.pl"
@@ -59,7 +69,7 @@ public:
     void clear();
     std::string toString();
 
-    void parseContractor();
+    void parseContractor(const std::string &str);
 };
 
 
@@ -68,7 +78,7 @@ class WLApi
     WLApiContractorRec m_contractor_rec;
     std::string m_raw_response;
 
-    bool doRequest(Poco::Net::HTTPClientSession& session, Poco::Net::HTTPRequest& request, Poco::Net::HTTPResponse& response);
+    bool doRequest(Poco::Net::HTTPClientSession& session, Poco::Net::HTTPRequest& request, Poco::Net::HTTPResponse& response);    
 
 public:
     WLApi();

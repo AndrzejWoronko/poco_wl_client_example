@@ -14,6 +14,9 @@ using Poco::DateTimeFormat;
 using Poco::DateTimeFormatter;
 using Poco::DateTimeParser;
 
+using namespace Poco::JSON;
+using namespace Poco::Dynamic;
+
 WLApiContractorRec::WLApiContractorRec()
 {
     clear();
@@ -55,6 +58,75 @@ std::string  WLApiContractorRec::toString()
     ret += std::string ("Budynek: ") + Budynek + "\n";
     ret += std::string ("Lokal: ") + Lokal + "\n";
     return ret;
+}
+
+void WLApiContractorRec::parseContractor(const std::string &str)
+{
+    try
+    {
+        Raw = str;
+        Parser parser;
+        Var result;
+        result = parser.parse(Raw);
+        Object::Ptr object = result.extract<Object::Ptr>();
+        Var res = object->get("result");
+        object = res.extract<Object::Ptr>();
+        Var subject = object->get("subject");
+        object = subject.extract<Object::Ptr>();
+        Var value = object->get("name");
+        if (!value.isEmpty())
+            Nazwa = value.convert<std::string>();
+        value = object->get("nip");
+        if (!value.isEmpty())
+            NIP = value.convert<std::string>();
+        value = object->get("regon");
+        if (!value.isEmpty())
+            Regon = value.convert<std::string>();
+        value = object->get("pesel");
+        if (!value.isEmpty())
+            Pesel = value.convert<std::string>();
+        value = object->get("krs");
+        if (!value.isEmpty())
+            Krs = value.convert<std::string>();
+        value = object->get("residenceAddress");
+        if (!value.isEmpty())
+            Adres = value.convert<std::string>();
+        else
+            {
+                value = object->get("workingAddress");
+                if (!value.isEmpty())
+                    Adres = value.convert<std::string>();
+            }
+        Poco::StringTokenizer ulica_miesjcowosc(Adres, ",");
+        std::string ulica = Poco::trim(ulica_miesjcowosc[0]);
+        std::string miejscowosc = Poco::trim(ulica_miesjcowosc[1]);
+
+        Ulica = Poco::trim(ulica.substr(0, ulica.find(' ')));
+        Budynek = Poco::trim(ulica.substr(ulica.find(' ')));
+
+        KodPocztowy = Poco::trim(miejscowosc.substr(0, miejscowosc.find(' ')));
+        Miejscowosc =  Poco::trim(miejscowosc.substr(miejscowosc.find(' ')));
+
+        value = object->get("statusVat");
+        if (!value.isEmpty())
+            StatusVat = value.convert<std::string>();
+
+        Poco::JSON::Array::Ptr arr = object->getArray("accountNumbers");
+        if (!arr.isNull())
+            {
+                value = arr->get(0);
+                if (!value.isEmpty())
+                    KontoBankowe = value.convert<std::string>();
+            }
+        Error = false;
+    }
+    catch(Poco::JSON::JSONException jsone)
+    {
+        Error = true;
+        clear();
+        ErrorInfo = jsone.message();
+        std::cout << jsone.message() << std::endl;
+    }
 }
 
 WLApi::WLApi()
@@ -110,8 +182,13 @@ void WLApi::getContractorByNIP(const std::string &nip)
 
     if (this->doRequest(session, request, response))
     {
-
         std::cout << "Contractor with NIP: " << nip  << " found !!!" << std::endl;
+
+        std::cout << "Raw JSON :" << m_raw_response << std::endl;
+
+        m_contractor_rec.parseContractor(m_raw_response);
+
+        std::cout << m_contractor_rec.toString() << std::endl;
     }
     else
     {
