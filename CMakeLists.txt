@@ -35,6 +35,6 @@ FetchContent_MakeAvailable(Poco)
 
 add_executable(poco_wl_client ${WL_SRCS})
 
-find_package(Poco REQUIRED Foundation JSON)
+#find_package(Poco REQUIRED Foundation JSON)
 
 target_link_libraries(poco_wl_client PUBLIC Poco::Foundation Poco::Net Poco::NetSSL Poco::Util Poco::JSON)
