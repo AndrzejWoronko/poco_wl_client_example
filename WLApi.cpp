@@ -129,11 +129,6 @@ void WLApiContractorRec::parseContractor(const std::string &str)
     }
 }
 
-WLApi::WLApi()
-{
-
-}
-
 bool WLApi::doRequest(Poco::Net::HTTPClientSession& session, Poco::Net::HTTPRequest& request, Poco::Net::HTTPResponse& response)
 {
     session.setKeepAlive(true);
@@ -173,12 +168,12 @@ void WLApi::getContractorByNIP(const std::string &nip)
 
     std::cout << "API adress: " << www_path <<  std::endl;
 
-    HTTPSClientSession session(uri.getHost());
+    Poco::Net::HTTPSClientSession session(uri.getHost());
 
-    HTTPRequest request(HTTPRequest::HTTP_GET, www_path, HTTPMessage::HTTP_1_1);
+    Poco::Net::HTTPRequest request(HTTPRequest::HTTP_GET, www_path, HTTPMessage::HTTP_1_1);
     request.setURI(www_path);
 
-    HTTPResponse response;
+    Poco::Net::HTTPResponse response;
 
     if (this->doRequest(session, request, response))
     {
@@ -195,3 +190,13 @@ void WLApi::getContractorByNIP(const std::string &nip)
         std::cout << "Contractor with NIP: " << nip  << " not found !!!" << std::endl;
     }
 }
+
+std::string WLApi::getContractorName()
+{
+    if (m_contractor_rec.getNazwa().empty())
+        return "";
+    else
+        m_contractor_rec.getNazwa();
+}
+
+

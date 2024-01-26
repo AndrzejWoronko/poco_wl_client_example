@@ -30,17 +30,15 @@
 #include "Poco/Dynamic/Var.h"
 #include "Poco/Array.h"
 
-
-
-#define WL_API_GET "https://wl-api.mf.gov.pl"
-#define WL_NIP_SEARCH "/api/search/nip/"
-
 #define ADD_FIELD(type, field, getField, setField) \
 public: \
     type getField(void){return field;} \
     void setField(const type &value) {field = value;} \
     private: \
     type field;
+
+#define WL_API_GET  "https://wl-api.mf.gov.pl"
+#define WL_NIP_SEARCH "/api/search/nip/"
 
 class  WLApiContractorRec
 {
@@ -73,7 +71,15 @@ public:
 };
 
 
-class WLApi
+class IGovIntegrationApi
+{
+public:
+    virtual ~IGovIntegrationApi() = default;
+    virtual void getContractorByNIP(const std::string &nip) = 0;
+    virtual std::string getContractorName() = 0;
+};
+
+class WLApi : public IGovIntegrationApi
 {
     WLApiContractorRec m_contractor_rec;
     std::string m_raw_response;
@@ -81,11 +87,12 @@ class WLApi
     bool doRequest(Poco::Net::HTTPClientSession& session, Poco::Net::HTTPRequest& request, Poco::Net::HTTPResponse& response);    
 
 public:
-    WLApi();
-    void getContractorByNIP(const std::string &nip);
+    WLApi() = default;
+
+    virtual void getContractorByNIP(const std::string &nip) override final;
+    virtual std::string getContractorName() override final;
 
     WLApiContractorRec &getContractorRec(void) {return m_contractor_rec;}
-
 };
 
 #endif // WLAPI_H
