@@ -28,7 +28,7 @@ set(ENABLE_DATA_ODBC OFF CACHE BOOL "" FORCE)
 include(FetchContent)
 FetchContent_Declare(
   Poco
-  URL https://github.com/pocoproject/poco/archive/refs/tags/poco-1.10.1-release.zip
+  URL https://github.com/pocoproject/poco/archive/refs/tags/poco-1.12.5p2-release.zip
 )
 
 FetchContent_MakeAvailable(Poco)

@@ -145,3 +145,7 @@ cmake-build/
 stage/
 releases/
 build-output/
+
+linux_build/
+win32_build/
+
